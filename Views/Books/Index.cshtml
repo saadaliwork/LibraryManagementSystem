@@ -1,0 +1,126 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.Book>
+
+@{
+    ViewData["Title"] = "Book List";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<h2>Book List</h2>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form id="searchForm" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="isAdmin" value="@isAdmin.ToString().ToLower()" />
+            <div class="input-group">
+                <input type="text" id="searchTerm" name="searchTerm" class="form-control" placeholder="Search by Title or Author..." />
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<p>
+    @if (isAdmin)
+    {
+        <a asp-action="Create" class="btn btn-primary">Create New</a> <span>|</span>
+    }
+    <a asp-action="BooksByYear" asp-route-year="2000" class="btn btn-secondary">Books After 2000</a>
+</p>
+
+<table class="table" id="booksTable">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Published Year</th>
+            <th>Price</th>
+            <th>Genre</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var books = Model ?? Enumerable.Empty<Book>();
+            if (!books.Any())
+            {
+                <tr><td colspan="6">No books available. @if (isAdmin) { <text>Click "Create New" to add books.</text> }</td></tr>
+            }
+            else
+            {
+                foreach (var book in books)
+                {
+                    var actions = "";
+                    if (isAdmin)
+                    {
+                        actions = $"<a href='/Books/Edit/{book.Id}'>Edit</a> | <a href='/Books/Delete/{book.Id}'>Delete</a>";
+                    }
+                    <tr>
+                        <td>@(book.Title ?? "")</td>
+                        <td>@(book.Author ?? "")</td>
+                        <td>@(book.PublishedYear ?? 0)</td>
+                        <td>@book.Price.ToString("F2")</td>
+                        <td>@(book.Genre ?? "")</td>
+                        <td>@Html.Raw(actions)</td>
+                    </tr>
+                }
+            }
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var isAdmin = $('#isAdmin').val() === 'true';
+
+            $('#searchForm').on('submit', function (e) {
+                e.preventDefault();
+                var searchTerm = $('#searchTerm').val();
+                loadBooks(searchTerm);
+            });
+
+            function loadBooks(searchTerm = '') {
+                $.ajax({
+                    url: '/Books/SearchBooks',
+                    type: 'POST',
+                    data: { searchTerm: searchTerm },
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#booksTable tbody').empty();
+                        if (data.error) {
+                            $('#booksTable tbody').append('<tr><td colspan="6">Error: ' + data.error + '</td></tr>');
+                            return;
+                        }
+                        if (data.length === 0) {
+                            $('#booksTable tbody').append('<tr><td colspan="6">No books found.</td></tr>');
+                        } else {
+                            $.each(data, function (index, book) {
+                                var actions = '';
+                                if (isAdmin) {
+                                    actions = '<a href="/Books/Edit/' + book.id + '">Edit</a> | <a href="/Books/Delete/' + book.id + '">Delete</a>';
+                                }
+                                $('#booksTable tbody').append(
+                                    '<tr>' +
+                                    '<td>' + (book.title || '') + '</td>' +
+                                    '<td>' + (book.author || '') + '</td>' +
+                                    '<td>' + (book.publishedYear || '') + '</td>' +
+                                    '<td>' + (book.price || '0.00') + '</td>' +
+                                    '<td>' + (book.genre || '') + '</td>' +
+                                    '<td>' + actions + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#booksTable tbody').empty();
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : 'Failed to load books. Please try again.';
+                        $('#booksTable tbody').append('<tr><td colspan="6">Error: ' + errorMessage + '</td></tr>');
+                    }
+                });
+            }
+        });
+    </script>
+}

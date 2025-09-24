@@ -1,0 +1,61 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.Book>
+
+@{
+    ViewData["Title"] = "Books Published On or After " + ViewBag.Year;
+}
+
+<h2>Books Published On or After @ViewBag.Year</h2>
+
+<p>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary">Create New</a> <span>|</span>
+    }
+    <a asp-action="Index" class="btn btn-secondary">Back to All Books</a>
+</p>
+
+@if (Model == null)
+{
+    <div class="alert alert-danger">No books data available. Please check the database connection.</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Title)</th>
+                <th>@Html.DisplayNameFor(model => model.Author)</th>
+                <th>@Html.DisplayNameFor(model => model.PublishedYear)</th>
+                <th>@Html.DisplayNameFor(model => model.Price)</th>
+                <th>@Html.DisplayNameFor(model => model.Genre)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr><td colspan="6" class="text-center">No books found for year @ViewBag.Year or later.</td></tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Author)</td>
+                        <td>@Html.DisplayFor(modelItem => item.PublishedYear)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Genre)</td>
+                        <td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> <span>|</span>
+                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}

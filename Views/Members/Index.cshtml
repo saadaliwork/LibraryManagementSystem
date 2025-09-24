@@ -1,0 +1,63 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.Member>
+
+@{
+    ViewData["Title"] = "Members";
+}
+
+<h2>Members</h2>
+
+<p>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+    }
+</p>
+
+@if (Model == null)
+{
+    <div class="alert alert-danger">No members data available. Please check the database connection.</div>
+}
+else
+{
+    <form asp-action="Index" method="get">
+        <div class="form-group">
+            <label for="days">Filter members joined in last N days:</label>
+            <input type="number" id="days" name="days" class="form-control" />
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.FullName)</th>
+                <th>@Html.DisplayNameFor(model => model.Email)</th>
+                <th>@Html.DisplayNameFor(model => model.JoinDate)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr><td colspan="4" class="text-center">No members found.</td></tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.JoinDate)</td>
+                        <td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> <span>|</span>
+                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}

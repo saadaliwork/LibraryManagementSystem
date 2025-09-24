@@ -1,0 +1,35 @@
+﻿@model dynamic
+
+@{
+    ViewData["Title"] = "Reports Page";
+    var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+}
+
+<h2>Reports</h2>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Total Books</div>
+            <div class="card-body">
+                <h5 class="card-title">@ViewBag.TotalBooks</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Total Members</div>
+            <div class="card-body">
+                <h5 class="card-title">@ViewBag.TotalMembers</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-header">Most Recent Member</div>
+            <div class="card-body">
+                <h5 class="card-title">@(ViewBag.MostRecentMember?.FullName ?? "No members")</h5>
+                <p class="card-text">Joined: @(ViewBag.MostRecentMember?.JoinDate.ToShortDateString() ?? "")</p>
+            </div>
+        </div>
+    </div>
+</div>
