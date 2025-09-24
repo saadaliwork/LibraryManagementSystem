@@ -1,6 +1,6 @@
 # Library Management System
 
-This is a web application for managing a library Management System. It allows users to manage books, members, and reports with role-based access.
+This is a web application for managing a library. It allows users to manage books, members, and reports with role-based access.
 
 ## Login Credentials
 - **Admin Login**:
